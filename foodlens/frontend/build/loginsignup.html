@@ -1,0 +1,177 @@
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Food Lens - Login and Signup
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Lobster&amp;display=swap" rel="stylesheet"/>
+  <style>
+   body {
+      font-family: 'Roboto', sans-serif;
+    }
+    .app-title {
+      font-family: 'Lobster', cursive;
+    }
+  </style>
+ </head>
+ <body class="bg-green-100 flex items-center justify-center min-h-screen relative">
+  <img alt="A vibrant background image of various healthy foods like fruits, vegetables, and grains" class="absolute inset-0 w-full h-full object-cover opacity-30" height="1080" src="https://storage.googleapis.com/a1aa/image/qqIN3Yx4yRg43BthYnfHmXmz36NwkVi7Q_riGz6Zu5I.jpg" width="1920"/>
+  <div class="container max-w-sm mx-auto p-6 bg-white rounded-lg shadow-md relative z-10">
+   <img alt="A subtle background image of healthy foods like fruits and vegetables" class="absolute inset-0 w-full h-full object-cover rounded-lg opacity-10" height="400" src="https://storage.googleapis.com/a1aa/image/tttfbh-V6JRJcFkYk3AAViIAff0r53IsC9FRD1curWA.jpg" width="600"/>
+   <div class="relative z-10">
+    <h1 class="text-4xl font-bold text-center text-black mb-2 app-title">
+     Food Lens
+    </h1>
+    <p class="text-center text-black mb-6">
+     Your Pocket Nutrition Expert!
+    </p>
+    <div class="space-y-6" id="loginForm">
+     <h2 class="text-3xl font-bold text-center text-green-700 mb-4">
+      Welcome!
+     </h2>
+     <input class="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500" id="loginEmail" placeholder="Email" required="" type="email"/>
+     <input class="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500" id="loginPassword" placeholder="Password" required="" type="password"/>
+     <button class="w-full p-3 mb-4 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded hover:from-green-500 hover:to-blue-600 transition duration-300" onclick="login()">
+      Login
+     </button>
+     <button class="w-full p-3 bg-gradient-to-r from-purple-400 to-pink-500 text-white rounded hover:from-purple-500 hover:to-pink-600 transition duration-300" onclick="showSignup()">
+      Signup
+     </button>
+    </div>
+    <div class="space-y-6 hidden" id="signupForm">
+     <h2 class="text-3xl font-bold text-center text-green-700 mb-4">
+      Signup
+     </h2>
+     <input class="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500" id="signupName" placeholder="Name" required="" type="text"/>
+     <input class="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500" id="signupEmail" placeholder="Email" required="" type="email"/>
+     <input class="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500" id="signupPassword" placeholder="Password" required="" type="password"/>
+     <input class="w-full p-3 mb-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500" id="signupCalorieGoal" min="0" placeholder="Calorie Goal (Optional)" type="number"/>
+     <button class="w-full p-3 mb-4 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded hover:from-green-500 hover:to-blue-600 transition duration-300" onclick="signup()">
+      Signup
+     </button>
+     <button class="w-full p-3 bg-gradient-to-r from-purple-400 to-pink-500 text-white rounded hover:from-purple-500 hover:to-pink-600 transition duration-300" onclick="showLogin()">
+      Back to Login
+     </button>
+    </div>
+   </div>
+  </div>
+  <script>
+
+    const API_BASE_URL="https://foodlens-six.vercel.app";
+
+   function showSignup() {
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('signupForm').classList.remove('hidden');
+    }
+
+    function showLogin() {
+      document.getElementById('signupForm').classList.add('hidden');
+      document.getElementById('loginForm').classList.remove('hidden');
+    }
+
+    function validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(String(email).toLowerCase());
+    }
+
+    function validatePassword(password) {
+      return password.length >= 6;
+    }
+
+    async function login() {
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+
+      if (!email || !password) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      if (!validateEmail(email)) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+
+      if (!validatePassword(password)) {
+        alert("Password must be at least 6 characters long.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/user/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await response.json();
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('userEmail', data.user.email);
+          localStorage.setItem('userName', data.user.name);
+          alert('Login successful!');
+          window.location.href = 'index.html';
+
+
+        } else {
+          alert(data.message);
+        }
+      } catch (error) {
+        console.error('Error during login:', error);
+      }
+    }
+
+    async function signup() {
+      const name = document.getElementById("signupName").value;
+      const email = document.getElementById("signupEmail").value;
+      const password = document.getElementById("signupPassword").value;
+      const calorieGoal = document.getElementById("signupCalorieGoal").value;
+
+      if (!name || !email || !password) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+
+      if (!validateEmail(email)) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+
+      if (!validatePassword(password)) {
+        alert("Password must be at least 6 characters long.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/user/signup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name, email, password, calorieGoal })
+        });
+        const data = await response.json();
+        if (data.message === 'Signup successful') {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('userEmail', data.user.email);
+          localStorage.setItem('userName', data.user.name);
+          alert('Signup successful! Please login with your credentials.');
+          showLogin();
+
+
+        } else {
+          alert(data.message);
+        }
+      } catch (error) {
+        console.error('Error during signup:', error);
+      }
+    }
+  </script>
+ </body>
+</html>
